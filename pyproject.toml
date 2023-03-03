@@ -1,0 +1,18 @@
+[tool.pdm]
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "", email = ""},
+]
+dependencies = [
+    "discord-py>=2.2.2",
+    "aiohttp>=3.8.4",
+    "openai>=0.27.0",
+    "rich>=13.3.1",
+    "python-dotenv>=1.0.0",
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}

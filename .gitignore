@@ -1,0 +1,7 @@
+.idea/
+.vscode/
+.venv/
+.DS_Store
+.env
+.pdm.toml
+__pycache__

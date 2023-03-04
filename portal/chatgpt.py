@@ -1,11 +1,10 @@
+import logging
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
 import openai
-from rich.console import Console
-from rich.markdown import Markdown
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -33,6 +32,8 @@ The current time is {datetime.now().isoformat(timespec="minutes")}.
 
 user_seed = os.getenv("USER_SEED")
 
+_log = logging.getLogger(__name__)
+
 
 @dataclass
 class ChatGPT:
@@ -44,7 +45,6 @@ class ChatGPT:
     temperature: float = 1
 
     def __post_init__(self):
-        self.console = Console(width=60, record=True)
         if self.system:
             self.messages.append({"role": "system", "content": self.system})
 
@@ -52,47 +52,14 @@ class ChatGPT:
             self.user_act(self.user_seed)
             self.assistant_act()
 
-    def __call__(self):
-        result = ""
-        self.console.print(
-            "Started new conversation.",
-            highlight=False,
-            style="italic",
-        )
-
-        while self.stop_str not in result:
-            self.user_act()
-            result = self.assistant_act()
-
-        self.console.print(
-            f"End of conversation.\n{self.token_total:,} total ChatGPT tokens used.",
-            highlight=False,
-            style="italic",
-        )
-        self.console.save_html(f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html")
-
-    def user_act(self, user_input=None):
-        if not user_input:
-            user_input = self.console.input().strip()
-            self.console.print("You:", user_input, sep="\n", highlight=False)
-        else:
-            self.console.print(
-                user_input,
-                highlight=False,
-                style="sea_green1",
-                sep="",
-            )
+    def user_act(self, user_input):
+        _log.debug(f"{user_input}=")
         self.messages.append({"role": "user", "content": user_input})
         return
 
     def assistant_act(self):
         result = self.execute()
-        self.console.print(
-            Markdown(result.replace(self.stop_str, "")),
-            highlight=False,
-            style="bright_magenta",
-            sep="",
-        )
+        _log.debug(f"{result=}")
         self.messages.append({"role": "assistant", "content": result})
         return result
 
@@ -107,7 +74,3 @@ class ChatGPT:
         )
         self.token_total += completion["usage"]["total_tokens"]
         return completion["choices"][0]["message"]["content"]
-
-
-if __name__ == "__main__":
-    ChatGPT(system=system, user_seed=user_seed)()

@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import random
 import re
@@ -7,11 +8,14 @@ from datetime import datetime
 
 import aiohttp
 import discord
-from discord import app_commands
+from discord import app_commands, utils
 
 from portal.chatgpt import ChatGPT, system, user_seed
 from portal.avatar import AvatarManager
 
+_log = logging.getLogger(__name__)
+_log.setLevel(logging.DEBUG)
+utils.setup_logging()
 
 chat_regex = re.compile(r"\[(.*)\]: (.*)")
 cooldown = int(os.getenv("COOLDOWN"))
@@ -39,18 +43,18 @@ class PortalClient(discord.Client):
         await self.tree.sync(guild=self.guild)
 
     async def on_ready(self):
-        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        _log.info(f"Logged in as {self.user} (ID: {self.user.id})")
 
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
 
         if message.channel.id in self.channel_whitelist:
-            print(f"Received discord message '{message.content}'")
+            _log.debug(f"Input: {message.content}")
 
             cur_time = time.time()
             if (cd := self.last_invocation + cooldown - cur_time) > 0:
-                print(f"Message sent to soon, still cooling down for {cd:.1f}s")
+                _log.warning(f"Message sent to soon, still cooling down for {cd:.1f}s")
                 await message.add_reaction("\U0001F975")
                 return
 
@@ -58,8 +62,7 @@ class PortalClient(discord.Client):
             user_input = f"[{message.author.display_name}]: {message.content}"
             self.chatbot.user_act(user_input=user_input)
             answer = self.chatbot.assistant_act()
-            print("Received answer")
-            print(answer)
+            _log.debug(f"Output: {answer}")
             asyncio.create_task(self.process_chatlog(answer))
 
     async def process_chatlog(self, chat: str):
@@ -92,9 +95,9 @@ client = PortalClient(intents=intents)
 @app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id, i.user.id))
 async def reset(interaction: discord.Interaction):
     if interaction.channel.id not in client.channel_whitelist:
-        print("Attempt to run reset in non-whitelisted channel.")
+        _log.warning("Attempt to run reset in non-whitelisted channel.")
 
-    print("Resetting conversation")
+    _log.info("Resetting conversation")
     await interaction.response.send_message("Resetting conversation")
     client.chatbot = client.new_chatbot()
     await interaction.channel.send(
@@ -106,20 +109,20 @@ async def reset(interaction: discord.Interaction):
 @app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
 async def generate(interaction: discord.Interaction):
     if interaction.channel.id not in client.channel_whitelist:
-        print("Attempt to run generate in non-whitelisted channel.")
+        _log.warning("Attempt to run generate in non-whitelisted channel.")
 
-    print("Generating more output")
+    _log.info("Generating more output")
     await interaction.response.send_message("Generating more output")
     client.chatbot.user_act(user_input="<OOC>: generate some more messages, please")
     answer = client.chatbot.assistant_act()
-    print(answer)
+    _log.debug(f"Output: {answer}")
     asyncio.create_task(client.process_chatlog(answer))
 
 
 @client.tree.command(description="bot status")
 async def status(interaction: discord.Interaction):
     if interaction.channel.id not in client.channel_whitelist:
-        print("Attempt to run generate in non-whitelisted channel.")
+        _log.warning("Attempt to run generate in non-whitelisted channel.")
 
     await interaction.response.send_message(
         f"Start time: {client.start_time.isoformat()}\n"
@@ -128,4 +131,4 @@ async def status(interaction: discord.Interaction):
 
 
 def main():
-    client.run(os.getenv("DISCORD_TOKEN"))
+    client.run(os.getenv("DISCORD_TOKEN"), log_handler=None)

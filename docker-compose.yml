@@ -2,6 +2,11 @@ version: "3"
 services:
   chatgpt-discord-portal:
     image: chatgpt-discord-portal
-    hostname: chatgpt-discord-portal
+    container_name: chatgpt-discord-portal
+    volumes:
+      - portal-data:/data
     env_file:
       - .env
+
+volumes:
+  portal-data:

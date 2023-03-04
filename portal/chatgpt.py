@@ -18,7 +18,7 @@ of the user who sent it, formatted as '[USER NAME]: MESSAGE'. Do not emit code b
 Remember to make sure that each user has a realistic name, is a different person,
 and may have different opinions on certain topics.
 Try to make their responses sound distinct from one another.
-They really like using emojis.
+They like using emojis.
 Not everyone has to respond to each message, when there isn't much to add.
 When there isn't too much going on, the users may start their own conversations
 independent from any input we provide.

@@ -5,10 +5,9 @@ import openai
 
 
 class AvatarManager:
-    avatar_db = "avatars.json"
-
     def __init__(self):
         self.avatars = {}
+        self.avatar_db = os.path.join(os.getenv("DATA_DIR", "./data"), "avatars.json")
         self.load_db()
         self.dalle_avatars = os.getenv("DALLE_AVATARS", False)
 

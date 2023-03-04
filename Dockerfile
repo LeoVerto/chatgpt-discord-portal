@@ -18,7 +18,10 @@ RUN mkdir __pypackages__ && pdm install --prod --no-lock --no-editable
 FROM python:3.10-alpine
 
 # retrieve packages from build stage
+ENV DATA_DIR=/data
 ENV PYTHONPATH=/project/pkgs
 COPY --from=builder /project/__pypackages__/3.10/lib /project/pkgs
+
+VOLUME /data
 
 CMD ["python", "-m", "portal"]

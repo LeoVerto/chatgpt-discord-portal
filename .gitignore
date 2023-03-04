@@ -4,9 +4,9 @@
 .venv/
 chatgpt_discord_portal.egg-info/
 build/
+data/
 dist/
 .DS_Store
 .env*
 .pdm.toml
 __pycache__
-avatars.json

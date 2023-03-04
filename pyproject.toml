@@ -1,11 +1,9 @@
-[tool.pdm]
-
 [project]
-name = ""
-version = ""
+name = "chatgpt-discord-portal"
+version = "0.0.1"
 description = ""
 authors = [
-    {name = "", email = ""},
+    {name = "LeoVerto", email = "LeoVerto@users.noreply.github.com"},
 ]
 dependencies = [
     "discord-py>=2.2.2",
@@ -15,4 +13,11 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {text = "GPLv3"}
+
+[tool.pdm.scripts]
+start.cmd = "python -m portal"
+start.env_file = ".env"
+
+[tool.ruff]
+src = ["src"]

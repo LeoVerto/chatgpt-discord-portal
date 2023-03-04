@@ -4,11 +4,8 @@ from datetime import datetime
 from typing import List
 
 import openai
-from dotenv import load_dotenv
 from rich.console import Console
 from rich.markdown import Markdown
-
-load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 

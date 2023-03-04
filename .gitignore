@@ -1,6 +1,9 @@
 .idea/
 .vscode/
 .venv/
+chatgpt_discord_portal.egg-info/
+build/
+dist/
 .DS_Store
 .env
 .pdm.toml

@@ -6,13 +6,11 @@ import time
 
 import aiohttp
 import discord
-from dotenv import load_dotenv
 from discord import app_commands
 
-import chatgpt
-from avatar import AvatarManager
+from portal.chatgpt import ChatGPT, system, user_seed
+from portal.avatar import AvatarManager
 
-load_dotenv()
 
 chat_regex = re.compile(r"\[(.*)\]: (.*)")
 cooldown = int(os.getenv("COOLDOWN"))
@@ -27,10 +25,11 @@ class PortalClient(discord.Client):
         self.channel_whitelist = list(
             map(int, os.getenv("DISCORD_CHANNEL_IDS").split(","))
         )
-        self.chatbot = chatgpt.ChatGPT(
-            system=chatgpt.system, user_seed=chatgpt.user_seed
-        )
+        self.chatbot = self.new_chatbot()
         self.avatar_man = AvatarManager()
+
+    def new_chatbot(self):
+        return ChatGPT(system=system, user_seed=user_seed)
 
     async def setup_hook(self):
         # This copies the global commands over to your guild.
@@ -96,7 +95,7 @@ async def reset(interaction: discord.Interaction):
         print("Attempt to run reset in non-whitelisted channel.")
 
     print("Triggering reset")
-    client.chatbot = chatgpt.ChatGPT(system=chatgpt.system, user_seed=chatgpt.user_seed)
+    client.chatbot = client.new_chatbot()
     await interaction.channel.send(
         "The portal briefly snaps closed, then reopens again."
     )
@@ -117,5 +116,5 @@ async def generate(interaction: discord.Interaction):
     asyncio.create_task(client.process_chatlog(answer))
 
 
-if __name__ == "__main__":
+def main():
     client.run(os.getenv("DISCORD_TOKEN"))

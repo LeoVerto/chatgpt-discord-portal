@@ -107,7 +107,7 @@ async def reset(interaction: discord.Interaction):
         _log.warning("Attempt to run reset in non-whitelisted channel.")
 
     _log.info("Resetting conversation")
-    await interaction.response.send_message("Resetting conversation")
+    await interaction.response.send_message("Resetting conversation", ephemeral=True)
     client.chatbot = client.new_chatbot()
     await interaction.channel.send(
         "The portal briefly snaps closed, then reopens again."
@@ -121,7 +121,7 @@ async def generate(interaction: discord.Interaction):
         _log.warning("Attempt to run generate in non-whitelisted channel.")
 
     _log.info("Generating more output")
-    await interaction.response.send_message("Generating more output")
+    await interaction.response.send_message("Generating more output", ephemeral=True)
     client.chatbot.user_act(user_input="<OOC>: generate some more messages, please")
     answer = client.chatbot.assistant_act()
     _log.debug(f"Output: {answer}")
@@ -135,7 +135,8 @@ async def status(interaction: discord.Interaction):
 
     await interaction.response.send_message(
         f"Start time: {client.start_time.isoformat()}\n"
-        f"Tokens used: {client.chatbot.token_total}"
+        f"Tokens used: {client.chatbot.token_total}",
+        ephemeral=True,
     )
 
 

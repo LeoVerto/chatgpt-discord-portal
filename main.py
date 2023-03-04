@@ -9,6 +9,7 @@ import discord
 from dotenv import load_dotenv
 
 import chatgpt
+from avatar import AvatarManager
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ cooldown = int(os.getenv("COOLDOWN"))
 last_invocation = time.time() - cooldown
 
 chatbot = None
+avatars = None
 
 
 @client.event
@@ -40,7 +42,9 @@ async def process_chatlog(chat: str):
         for match in matches:
             author = match[0]
             msg = match[1]
-            await webhook.send(msg, username=author)
+            await webhook.send(
+                msg, username=author, avatar_url=avatars.get_avatar(author)
+            )
             await asyncio.sleep(2 * random.random() + 0.02 * len(msg))
 
 
@@ -81,4 +85,5 @@ async def on_message(message: discord.Message):
 
 if __name__ == "__main__":
     chatbot = chatgpt.ChatGPT(system=chatgpt.system, user_seed=chatgpt.user_seed)
+    avatars = AvatarManager()
     client.run(os.getenv("DISCORD_TOKEN"))

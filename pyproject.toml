@@ -1,19 +1,25 @@
 [project]
 name = "chatgpt-discord-portal"
-version = "0.0.1"
 description = ""
 authors = [
     {name = "LeoVerto", email = "LeoVerto@users.noreply.github.com"},
 ]
+dynamic = ["version"]
 dependencies = [
     "discord-py>=2.2.2",
     "aiohttp>=3.8.4",
     "openai>=0.27.0",
-    "rich>=13.3.1",
     "python-dotenv>=1.0.0",
 ]
 requires-python = ">=3.10"
 license = {text = "GPLv3"}
+
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool.pdm]
+version = { source = "scm" }
 
 [tool.pdm.scripts]
 start.cmd = "python -m portal"

@@ -91,21 +91,23 @@ client = PortalClient(intents=intents)
 
 @client.tree.command(name="reset", description="reset portal")
 @app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id, i.user.id))
-async def reset(context):
-    if context.channel.id not in client.channel_whitelist:
+async def reset(interaction: discord.Interaction):
+    if interaction.channel.id not in client.channel_whitelist:
         print("Attempt to run reset in non-whitelisted channel.")
 
     print("Triggering reset")
     client.chatbot = chatgpt.ChatGPT(system=chatgpt.system, user_seed=chatgpt.user_seed)
-    await context.channel.send("The portal briefly snaps closed, then reopens again.")
+    await interaction.channel.send(
+        "The portal briefly snaps closed, then reopens again."
+    )
 
 
 @client.tree.command(
     name="generate", description="generate more messages without user input"
 )
 @app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
-async def generate(context):
-    if context.channel.id not in client.channel_whitelist:
+async def generate(interaction: discord.Interaction):
+    if interaction.channel.id not in client.channel_whitelist:
         print("Attempt to run generate in non-whitelisted channel.")
 
     print("Generating more output")

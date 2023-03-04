@@ -59,12 +59,16 @@ class PortalClient(discord.Client):
                 return
 
             self.last_invocation = cur_time
+
             if message.reference and message.reference.cached_message:
                 referenced = message.reference.cached_message
-                message_prefix = f"[replying to {referenced.author.display_name}] "
+                message_prefix = f"@{referenced.author.display_name} "
             else:
                 message_prefix = ""
-            user_input = f"[{message.author.display_name}]: {message_prefix}{message.content}"
+            user_input = (
+                f"[{message.author.display_name}]: {message_prefix}{message.content}"
+            )
+
             self.chatbot.user_act(user_input=user_input)
             answer = self.chatbot.assistant_act()
             _log.debug(f"Output: {answer}")

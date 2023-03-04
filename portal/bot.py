@@ -3,6 +3,7 @@ import os
 import random
 import re
 import time
+from datetime import datetime
 
 import aiohttp
 import discord
@@ -27,6 +28,7 @@ class PortalClient(discord.Client):
         )
         self.chatbot = self.new_chatbot()
         self.avatar_man = AvatarManager()
+        self.start_time = datetime.now()
 
     def new_chatbot(self):
         return ChatGPT(system=system, user_seed=user_seed)
@@ -43,7 +45,6 @@ class PortalClient(discord.Client):
         if message.author.bot:
             return
 
-        print(f"{message.channel.id=} {''.join(map(str, self.channel_whitelist))}")
         if message.channel.id in self.channel_whitelist:
             print(f"Received discord message '{message.content}'")
 
@@ -68,7 +69,6 @@ class PortalClient(discord.Client):
             webhook = discord.Webhook.from_url(
                 os.getenv("DISCORD_WEBHOOK"), session=session
             )
-
             for match in matches:
                 author = match[0]
                 msg = match[1]
@@ -88,32 +88,43 @@ intents.message_content = True
 client = PortalClient(intents=intents)
 
 
-@client.tree.command(name="reset", description="reset portal")
+@client.tree.command(description="reset portal")
 @app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id, i.user.id))
 async def reset(interaction: discord.Interaction):
     if interaction.channel.id not in client.channel_whitelist:
         print("Attempt to run reset in non-whitelisted channel.")
 
-    print("Triggering reset")
+    print("Resetting conversation")
+    await interaction.response.send_message("Resetting conversation")
     client.chatbot = client.new_chatbot()
     await interaction.channel.send(
         "The portal briefly snaps closed, then reopens again."
     )
 
 
-@client.tree.command(
-    name="generate", description="generate more messages without user input"
-)
+@client.tree.command(description="generate more messages without user input")
 @app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
 async def generate(interaction: discord.Interaction):
     if interaction.channel.id not in client.channel_whitelist:
         print("Attempt to run generate in non-whitelisted channel.")
 
     print("Generating more output")
+    await interaction.response.send_message("Generating more output")
     client.chatbot.user_act(user_input="<OOC>: generate some more messages, please")
     answer = client.chatbot.assistant_act()
     print(answer)
     asyncio.create_task(client.process_chatlog(answer))
+
+
+@client.tree.command(description="bot status")
+async def status(interaction: discord.Interaction):
+    if interaction.channel.id not in client.channel_whitelist:
+        print("Attempt to run generate in non-whitelisted channel.")
+
+    await interaction.response.send_message(
+        f"Start time: {client.start_time.isoformat()}\n"
+        f"Tokens used: {client.chatbot.token_total}"
+    )
 
 
 def main():

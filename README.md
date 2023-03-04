@@ -16,7 +16,7 @@ with members of a faraway yet oddly familiar community.
 Create a Discord bot and add it to your server.
 On this server, also create a webhook for the channel you want the bot to post to.
 
-Copy `.env.sample` to `.env` and fill in the missing variables.
+Copy `sample.env` to `.env` and fill in the missing variables.
 
 Use `pdm install` to install the dependencies.
 
@@ -28,7 +28,7 @@ Alternatively, after setting up `.env`, you can build the docker image using:
 docker build -t chatgpt-discord-portal .
 ```
 
-And then start it using docker-compose:
+And then start it using docker compose:
 ```shell
-docker-compose up -d
+docker compose up -d
 ```

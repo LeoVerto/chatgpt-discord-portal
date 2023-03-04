@@ -18,6 +18,5 @@ license = {text = "GPLv3"}
 [tool.pdm.scripts]
 start.cmd = "python -m portal"
 start.env_file = ".env"
-
-[tool.ruff]
-src = ["src"]
+start-dev.cmd = "python -m portal"
+start-dev.env_file = ".env_dev"

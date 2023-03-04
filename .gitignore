@@ -6,7 +6,7 @@ chatgpt_discord_portal.egg-info/
 build/
 dist/
 .DS_Store
-.env
+.env*
 .pdm.toml
 __pycache__
 avatars.json

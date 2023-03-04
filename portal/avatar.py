@@ -10,6 +10,7 @@ class AvatarManager:
     def __init__(self):
         self.avatars = {}
         self.load_db()
+        self.dalle_avatars = os.getenv("DALLE_AVATARS", False)
 
     def load_db(self):
         if os.path.exists(self.avatar_db):
@@ -23,7 +24,7 @@ class AvatarManager:
     def get_avatar(self, author: str) -> str:
         if author in self.avatars:
             return self.avatars.get(author)
-        else:
+        elif self.dalle_avatars:
             try:
                 response = openai.Image.create(
                     prompt=f"Discord avatar for user {author}", n=1, size="256x256"
@@ -37,3 +38,5 @@ class AvatarManager:
             self.avatars[author] = image_url
             self.save_db()
             return image_url
+        else:
+            return ""

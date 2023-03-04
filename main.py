@@ -7,23 +7,38 @@ import time
 import aiohttp
 import discord
 from dotenv import load_dotenv
+from discord import app_commands
 
 import chatgpt
 from avatar import AvatarManager
 
 load_dotenv()
 
-# discord setup
-intents = discord.Intents.default()
-intents.message_content = True
-client = discord.Client(intents=intents)
-
 chat_regex = re.compile(r"\[(.*)\]: (.*)")
 cooldown = int(os.getenv("COOLDOWN"))
 last_invocation = time.time() - cooldown
+channel_whitelist = map(int, os.getenv("DISCORD_CHANNEL_IDS").split(","))
+guild = discord.Object(id=int(os.getenv("DISCORD_GUILD")))
 
 chatbot = None
 avatars = None
+
+
+class MyClient(discord.Client):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+
+    async def setup_hook(self):
+        # This copies the global commands over to your guild.
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
+
+
+# discord setup
+intents = discord.Intents.default()
+intents.message_content = True
+client = MyClient(intents=intents)
 
 
 @client.event
@@ -42,6 +57,10 @@ async def process_chatlog(chat: str):
         for match in matches:
             author = match[0]
             msg = match[1]
+
+            if author == "OOC":
+                continue
+
             await webhook.send(
                 msg, username=author, avatar_url=avatars.get_avatar(author)
             )
@@ -50,23 +69,13 @@ async def process_chatlog(chat: str):
 
 @client.event
 async def on_message(message: discord.Message):
-    global last_invocation, chatbot
+    global last_invocation, chatbot, channel_whitelist
 
     if message.author.bot:
         return
 
-    if message.channel.id in map(int, os.getenv("DISCORD_CHANNEL_IDS").split(",")):
+    if message.channel.id in channel_whitelist:
         print(f"Received discord message '{message.content}'")
-
-        if message.content.startswith("?reset"):
-            print("Triggering reset")
-            chatbot = chatgpt.ChatGPT(
-                system=chatgpt.system, user_seed=chatgpt.user_seed
-            )
-            await message.channel.send(
-                "The portal briefly snaps closed, then reopens again."
-            )
-            return
 
         cur_time = time.time()
         if (cd := last_invocation + cooldown - cur_time) > 0:
@@ -75,12 +84,42 @@ async def on_message(message: discord.Message):
             return
 
         last_invocation = cur_time
-        question = f"[{message.author.display_name}]: {message.content}"
-        chatbot.user_act(user_input=question)
+        user_input = f"[{message.author.display_name}]: {message.content}"
+        chatbot.user_act(user_input=user_input)
         answer = chatbot.assistant_act()
         print("Received answer")
         print(answer)
         asyncio.create_task(process_chatlog(answer))
+
+
+@client.tree.command(name="reset", description="reset portal")
+@app_commands.checks.cooldown(1, 60, key=lambda i: (i.guild_id, i.user.id))
+async def reset(context):
+    global chatbot, channel_whitelist
+
+    if context.channel.id not in channel_whitelist:
+        print("Attempt to run reset in non-whitelisted channel.")
+
+    print("Triggering reset")
+    chatbot = chatgpt.ChatGPT(system=chatgpt.system, user_seed=chatgpt.user_seed)
+    await context.channel.send("The portal briefly snaps closed, then reopens again.")
+
+
+@client.tree.command(
+    name="generate", description="generate more messages without user input"
+)
+@app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
+async def generate(context):
+    global chatbot, channel_whitelist
+
+    if context.channel.id not in channel_whitelist:
+        print("Attempt to run generate in non-whitelisted channel.")
+
+    print("Generating more output")
+    chatbot.user_act(user_input="<OOC>: generate some more messages, please")
+    answer = chatbot.assistant_act()
+    print(answer)
+    asyncio.create_task(process_chatlog(answer))
 
 
 if __name__ == "__main__":

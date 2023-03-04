@@ -5,3 +5,4 @@
 .env
 .pdm.toml
 __pycache__
+avatars.json

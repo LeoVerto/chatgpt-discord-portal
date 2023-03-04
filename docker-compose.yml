@@ -1,0 +1,7 @@
+version: "3"
+services:
+  chatgpt-discord-portal:
+    image: chatgpt-discord-portal
+    hostname: chatgpt-discord-portal
+    env_file:
+      - .env

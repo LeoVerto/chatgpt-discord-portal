@@ -17,7 +17,7 @@ _log = logging.getLogger(__name__)
 _log.setLevel(logging.DEBUG)
 utils.setup_logging()
 
-chat_regex = re.compile(r"\[(.*)\]: (.*)")
+chat_regex = re.compile(r"\[(\w*)\]: (.*)", re.DOTALL)
 cooldown = int(os.getenv("COOLDOWN"))
 
 
@@ -83,7 +83,7 @@ class PortalClient(discord.Client):
             )
             for match in matches:
                 author = match[0]
-                msg = match[1]
+                msg = match[1].strip()
 
                 if author == "OOC":
                     continue

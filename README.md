@@ -4,11 +4,14 @@ What if I told you that your favorite Discord server had counterparts in alterna
 This tool allows you to open a portal to one of these alternate dimensions and to chat
 with members of a faraway yet oddly familiar community.
 
+![demo screenshot](images/demo_screenshot.png)
+
 ## Features
-- [X] Simulate multiple users with distinct personalities for realistic interactions
-- [X] Generate engaging discussions with real humans
-- [X] Create self-contained AI discussions with a simple command
-- [X] Generate unique and persistent avatars using DALL-E
+- [X] Simulate multiple users with distinct personalities
+- [X] Emulate existing communities by fine-tuning the prompt
+- [X] Create engaging discussions with real humans
+- [X] Generate self-contained AI discussions with a simple command
+- [X] Hallucinate unique and persistent avatars using DALL-E
 - [ ] Token management, message log retention
 - [ ] Administration via Discord commands
 

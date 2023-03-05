@@ -53,8 +53,10 @@ class ChatGPT:
             self.user_act(self.user_seed)
             self.assistant_act()
 
+        _log.info("Intialized")
+
     def user_act(self, user_input):
-        _log.debug(f"{user_input}=")
+        _log.debug(f"{user_input=}")
         self.messages.append({"role": "user", "content": user_input})
         return
 

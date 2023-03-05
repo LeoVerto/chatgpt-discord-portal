@@ -31,3 +31,12 @@ the app without any further setup:
 ```shell
 docker compose up -d
 ```
+
+## Commands
+The bot sets up some Discord commands:
+
+`/reset`: Reset the chat history
+
+`/generate`: Generate some bot discussion
+
+`/status`: Output start time and current token count

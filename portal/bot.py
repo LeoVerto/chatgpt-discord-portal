@@ -17,7 +17,7 @@ _log = logging.getLogger(__name__)
 _log.setLevel(logging.DEBUG)
 utils.setup_logging()
 
-chat_regex = re.compile(r"\[(\w*)\]: (.*)", re.DOTALL)
+chat_regex = re.compile(r"\[(\w*)\]: ([^\[\]]*)", re.DOTALL)
 cooldown = int(os.getenv("COOLDOWN"))
 
 

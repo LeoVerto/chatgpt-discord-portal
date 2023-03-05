@@ -23,12 +23,8 @@ Use `pdm install` to install the dependencies.
 Run the bot using `pdm run main.py`.
 
 ## Docker
-Alternatively, after setting up `.env`, you can build the docker image using:
-```shell
-docker build -t chatgpt-discord-portal .
-```
-
-And then start it using docker compose:
+Alternatively, after setting up `.env`, you can use docker compose to start
+the app without any further setup:
 ```shell
 docker compose up -d
 ```

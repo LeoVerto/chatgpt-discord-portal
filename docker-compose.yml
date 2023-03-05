@@ -1,7 +1,7 @@
 version: "3"
 services:
   chatgpt-discord-portal:
-    image: chatgpt-discord-portal
+    image: ghcr.io/leoverto/chatgpt-discord-portal:latest
     container_name: chatgpt-discord-portal
     volumes:
       - portal-data:/data
